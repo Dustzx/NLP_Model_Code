@@ -1,6 +1,7 @@
 import torch
 
-from data import dic_x,dic_y
+from data import dic_x, dic_y
+
 
 def mask_pad(data):
     # b句话,每句话50个词,这里是还没embed的
@@ -9,7 +10,7 @@ def mask_pad(data):
     mask = data == dic_x['<PAD>']
 
     # [b, 50] -> [b, 1, 1, 50]
-    mask = mask.reshape(-1,1,1,50)
+    mask = mask.reshape(-1, 1, 1, 50)
 
     # 在计算注意力时,是计算50个词和50个词相互之间的注意力,所以是个50*50的矩阵
     # 是pad的列是true,意味着任何词对pad的注意力都是0
@@ -18,8 +19,9 @@ def mask_pad(data):
 
     # 复制n次
     # [b, 1, 1, 50] -> [b, 1, 50, 50]
-    mask = mask.expand(-1,1,50,50)
+    mask = mask.expand(-1, 1, 50, 50)
     return mask
+
 
 def mask_tril(data):
     # b句话,每句话50个词,这里是还没embed的
@@ -34,10 +36,10 @@ def mask_tril(data):
      [0, 0, 0, 1, 1],
      [0, 0, 0, 0, 1],
      [0, 0, 0, 0, 0]]"""
-    tril = 1 - torch.tril(torch.ones(1,50,50,dytpe=torch.long))
+    tril = 1 - torch.tril(torch.ones(1, 50, 50, dtype=torch.long))
     # 判断y当中每个词是不是pad,如果是pad则不可见
     # [b, 50]
-    mask = data ==dic_y['<PAD>']
+    mask = data == dic_y['<PAD>']
 
     # 变形+转型,为了之后的计算
     # [b, 1, 50]
@@ -54,3 +56,9 @@ def mask_tril(data):
     mask = (mask == 1).unsqueeze(dim=1)
 
     return mask
+
+
+if __name__ == '__main__':
+    a = torch.ones(1, 5, 5, dtype=torch.long)
+    tril = torch.tril(a)
+    print(tril)
